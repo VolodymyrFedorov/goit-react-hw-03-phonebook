@@ -16,15 +16,28 @@ export class App extends Component {
     filter: '',
   };
 
+  componentDidMount() {
+    const contacts = localStorage.getItem('contacts');
+    const parsedContacts = JSON.parse(contacts);
+    if (parsedContacts) {
+      this.setState({ contacts: parsedContacts });
+    }
+  }
+
+  componentDidUpdate(_, prevState) {
+    if (this.state.contacts !== prevState.contacts) {
+      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+    }
+  }
+
+  generetedId = () => {
+    return nanoid(5);
+  };
+
   formSubmitHandler = data => {
     const { contacts } = this.state;
     console.log(data);
-    if (
-      contacts.some(
-        contact =>
-          contact.name.toLocaleLowerCase === data.name.toLocaleLowerCase
-      )
-    ) {
+    if (contacts.some(contact => contact.name === data.name)) {
       alert(`${data.name} is already in contacts.`);
       return;
     }
@@ -34,10 +47,6 @@ export class App extends Component {
         { id: this.generetedId(), name: data.name, number: data.number },
       ],
     });
-  };
-
-  generetedId = () => {
-    return nanoid(5);
   };
 
   handleChangeFilter = event => {
